@@ -1,0 +1,224 @@
+
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  margin: 0;
+  background: #0b1220;
+  color: #e5e7eb;
+  font-family: ui-sans-serif, system-ui;
+}
+
+/* 🔥 стеклянные панели */
+.glass {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  border-radius: 14px;
+}
+
+/* кнопки */
+button {
+  background: #3b82f6;
+  border: none;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #2563eb;
+}
+
+/* инпуты */
+input, select {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: white;
+  padding: 8px 10px;
+  border-radius: 10px;
+  outline: none;
+}
+.glass:hover {
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.15);
+}
+
+/* 🔥 анимированная кнопка логина */
+.animated-button {
+  position: relative;
+  overflow: hidden;
+}
+
+.animated-button::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 12px;
+  background: conic-gradient(
+    from 0deg,
+    #3b82f6,
+    #8b5cf6,
+    #ec4899,
+    #3b82f6
+  );
+  animation: rotate 3s linear infinite;
+  z-index: -1;
+}
+
+.animated-button::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #1e293b;
+  border-radius: 10px;
+  z-index: -1;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 📱 Responsive Design - Mobile First */
+
+/* Base mobile styles */
+html {
+  font-size: 14px;
+}
+
+/* Small phones (320px+) */
+@media (min-width: 320px) {
+  html {
+    font-size: 14px;
+  }
+}
+
+/* Phones (480px+) */
+@media (min-width: 480px) {
+  html {
+    font-size: 15px;
+  }
+}
+
+/* Tablets (768px+) */
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+  
+  .glass {
+    border-radius: 16px;
+  }
+  
+  button {
+    padding: 10px 16px;
+    border-radius: 12px;
+  }
+  
+  input, select {
+    padding: 10px 14px;
+    border-radius: 12px;
+  }
+}
+
+/* Small laptops (1024px+) */
+@media (min-width: 1024px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+/* Desktops (1280px+) */
+@media (min-width: 1280px) {
+  html {
+    font-size: 17px;
+  }
+}
+
+/* Large screens/TVs (1920px+) */
+@media (min-width: 1920px) {
+  html {
+    font-size: 18px;
+  }
+  
+  .container {
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+}
+
+/* 4K screens (2560px+) */
+@media (min-width: 2560px) {
+  html {
+    font-size: 20px;
+  }
+  
+  .container {
+    max-width: 2000px;
+  }
+}
+
+/* 📺 TV optimizations */
+@media (min-width: 1920px) and (min-height: 1080px) {
+  body {
+    line-height: 1.6;
+  }
+  
+  button {
+    min-height: 48px;
+    font-size: 1.1rem;
+  }
+  
+  input, select {
+    min-height: 48px;
+    font-size: 1.1rem;
+  }
+}
+
+/* 📱 Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  input, select {
+    min-height: 44px;
+  }
+  
+  .glass:hover {
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: none;
+  }
+}
+
+/* 🔄 Landscape orientation on mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+  html {
+    font-size: 13px;
+  }
+}

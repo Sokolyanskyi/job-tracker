@@ -1,0 +1,9 @@
+node_modules
+data
+data.sqlite
+.env
+.git
+.vscode
+.idea
+*.log
+npm-debug.log*
