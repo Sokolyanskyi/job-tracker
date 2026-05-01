@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { fetchWithAuth } from '../lib/fetchWithAuth';
 
-const API = 'http://localhost:5000/jobs';
+const API = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000') + '/jobs';
 
 export function useJobs() {
     return useQuery({
