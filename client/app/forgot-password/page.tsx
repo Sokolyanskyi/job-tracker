@@ -12,7 +12,6 @@ export default function ForgotPasswordPage() {
     const [success, setSuccess] = useState(false);
     const [loading, setLoading] = useState(false);
     const [language, setLanguage] = useState<Language>('en');
-    const [devToken, setDevToken] = useState<string | null>(null);
 
     useEffect(() => {
         const saved = localStorage.getItem('language') as Language;
@@ -46,13 +45,8 @@ export default function ForgotPasswordPage() {
         setLoading(true);
 
         try {
-            const data = await requestPasswordReset(email);
-            console.log('Response data:', data);
-            alert('devToken: ' + (data.devToken || 'NOT FOUND'));
+            await requestPasswordReset(email);
             setSuccess(true);
-            if (data.devToken) {
-                setDevToken(data.devToken);
-            }
         } catch (err: any) {
             setError(err.message || t.errors.resetFailed);
         } finally {
@@ -78,27 +72,6 @@ export default function ForgotPasswordPage() {
                     <div style={{ color: '#22c55e', marginBottom: 16 }}>
                         {t.resetLinkSent}
                     </div>
-                    {devToken && (
-                        <div style={{ marginBottom: 16, padding: 12, background: '#1f2937', borderRadius: 8 }}>
-                            <p style={{ color: '#9ca3af', fontSize: 12, marginBottom: 8 }}>
-                                Dev mode - click or copy token:
-                            </p>
-                            <code style={{ color: '#22c55e', fontSize: 12, wordBreak: 'break-all' }}>
-                                {devToken}
-                            </code>
-                            <br/><br/>
-                            <a
-                                href={`/reset-password?token=${devToken}`}
-                                style={{
-                                    color: '#3b82f6',
-                                    textDecoration: 'none',
-                                    fontSize: 14,
-                                }}
-                            >
-                                → Reset Password
-                            </a>
-                        </div>
-                    )}
                     <button
                         onClick={() => router.push('/login')}
                         style={{

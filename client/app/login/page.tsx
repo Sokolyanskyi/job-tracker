@@ -79,17 +79,6 @@ export default function LoginPage() {
         }
     };
 
-    const handleTestLogin = async () => {
-        setErrors({});
-        try {
-            const data = await login('test@test.com', 'test123');
-            setToken(data.token);
-            router.push('/');
-        } catch {
-            setErrors({ general: t.errors.serverError });
-        }
-    };
-
 
     const inputContainerStyle = {
         position: 'relative' as const,
@@ -110,7 +99,7 @@ export default function LoginPage() {
         outline: 'none',
         transition: 'border-color 0.2s ease',
         maxHeight: isMobile ? 48 : 40,
-        boxSizing: 'border-box',
+        boxSizing: 'border-box' as const,
     });
 
     const errorStyle = {
@@ -221,33 +210,6 @@ export default function LoginPage() {
             </button>
 
             <div style={{ textAlign: 'center', marginTop: 8 }}>
-                <p style={{ color: '#9ca3af', fontSize: 12, marginBottom: 8 }}>
-                    {t.testCredentials}
-                </p>
-                <button
-                    onClick={handleTestLogin}
-                    style={{
-                        background: 'transparent',
-                        border: '1px solid #6b7280',
-                        borderRadius: 8,
-                        padding: '8px 16px',
-                        color: '#9ca3af',
-                        fontSize: 13,
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease',
-                    }}
-                    onMouseEnter={(e) => {
-                        e.currentTarget.style.borderColor = '#3b82f6';
-                        e.currentTarget.style.color = '#3b82f6';
-                    }}
-                    onMouseLeave={(e) => {
-                        e.currentTarget.style.borderColor = '#6b7280';
-                        e.currentTarget.style.color = '#9ca3af';
-                    }}
-                >
-                    {t.testLogin}
-                </button>
-
                 <p style={{ color: '#9ca3af', fontSize: 14, marginTop: 8 }}>
                     <a href="/forgot-password" style={{ color: '#3b82f6', textDecoration: 'none' }}>
                         {language === 'ru' ? 'Забыли пароль?' : language === 'ua' ? 'Забули пароль?' : 'Forgot password?'}

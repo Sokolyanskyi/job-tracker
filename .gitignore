@@ -9,3 +9,23 @@ yarn-error.log*
 .pnp.js
 
 .vscode/*
+
+# Environment variables
+.env
+.env.local
+.env.production
+
+# Next.js
+.next/
+out/
+build/
+dist/
+
+# Database
+server/data/
+*.db
+*.sqlite
+
+# OS
+.DS_Store
+Thumbs.db

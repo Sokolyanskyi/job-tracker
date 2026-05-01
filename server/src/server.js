@@ -9,7 +9,8 @@ import jobsRoutes from './routes/jobsRoutes.js';
 
 const app = express();
 
-app.use(cors());
+const corsOrigin = process.env.CORS_ORIGIN || '*';
+app.use(cors({ origin: corsOrigin }));
 app.use(express.json());
 
 app.get('/', (req, res) => {
@@ -22,6 +23,4 @@ app.use('/jobs', jobsRoutes);
 const PORT = process.env.PORT || 5000;
 const HOST = process.env.HOST || '0.0.0.0';
 
-app.listen(PORT, HOST, () => {
-    console.log(`Server running on http://${HOST}:${PORT}`);
-});
+app.listen(PORT, HOST);

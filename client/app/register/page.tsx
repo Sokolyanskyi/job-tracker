@@ -106,7 +106,7 @@ export default function RegisterPage() {
         outline: 'none',
         transition: 'border-color 0.2s ease',
         minHeight: isMobile ? 28 : 20,
-        boxSizing: 'border-box',
+        boxSizing: 'border-box' as const,
     });
 
     const errorStyle = {

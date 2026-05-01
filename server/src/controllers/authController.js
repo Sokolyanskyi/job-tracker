@@ -1,54 +1,59 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
-import db from '../db.js';
+import pool from '../db.js';
 
-const SECRET = 'supersecret';
-
-// Create test user if not exists
-const testPassword = await bcrypt.hash('test123', 10);
-try {
-    db.prepare('INSERT OR IGNORE INTO users (id, email, password) VALUES (1, ?, ?)')
-        .run('test@test.com', testPassword);
-} catch (e) {
-    // ignore
-}
+const SECRET = process.env.JWT_SECRET || 'supersecret';
 
 export const register = async (req, res) => {
     const { email, password } = req.body;
 
-    const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(email);
-    if (existing) {
-        return res.status(400).json({ message: 'User exists' });
+    try {
+        const existing = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
+        if (existing.rows.length > 0) {
+            return res.status(400).json({ message: 'User exists' });
+        }
+
+        const hash = await bcrypt.hash(password, 10);
+
+        const result = await pool.query(
+            'INSERT INTO users (email, password) VALUES ($1, $2) RETURNING id',
+            [email, hash]
+        );
+
+        res.json({ success: true, userId: result.rows[0].id });
+    } catch (error) {
+        console.error('Registration error:', error);
+        res.status(500).json({ message: 'Server error' });
     }
-
-    const hash = await bcrypt.hash(password, 10);
-
-    const result = db.prepare('INSERT INTO users (email, password) VALUES (?, ?)')
-        .run(email, hash);
-
-    res.json({ success: true, userId: result.lastInsertRowid });
 };
 
 export const login = async (req, res) => {
     const { email, password } = req.body;
 
-    const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
-    if (!user) {
-        return res.status(400).json({ message: 'No user' });
+    try {
+        const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+        const user = result.rows[0];
+        
+        if (!user) {
+            return res.status(400).json({ message: 'No user' });
+        }
+
+        const valid = await bcrypt.compare(password, user.password);
+        if (!valid) {
+            return res.status(400).json({ message: 'Wrong password' });
+        }
+
+        const token = jwt.sign(
+            { userId: user.id },
+            SECRET,
+            { expiresIn: '7d' }
+        );
+
+        res.json({ token });
+    } catch (error) {
+        console.error('Login error:', error);
+        res.status(500).json({ message: 'Server error' });
     }
-
-    const valid = await bcrypt.compare(password, user.password);
-    if (!valid) {
-        return res.status(400).json({ message: 'Wrong password' });
-    }
-
-    const token = jwt.sign(
-        { userId: user.id },
-        SECRET,
-        { expiresIn: '7d' }
-    );
-
-    res.json({ token });
 };
 
 // Generate secure random token
@@ -65,63 +70,83 @@ function generateResetToken() {
 export const forgotPassword = async (req, res) => {
     const { email } = req.body;
 
-    const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
-    if (!user) {
-        // Don't reveal if user exists
-        return res.json({ message: 'If account exists, reset instructions sent' });
+    try {
+        const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+        const user = result.rows[0];
+        
+        if (!user) {
+            // Don't reveal if user exists
+            return res.json({ message: 'If account exists, reset instructions sent' });
+        }
+
+        const token = generateResetToken();
+        const expires = Date.now() + 3600000; // 1 hour
+
+        // Save reset token
+        await pool.query(
+            'UPDATE users SET reset_token = $1, reset_token_expires = $2 WHERE id = $3',
+            [token, expires, user.id]
+        );
+
+        // In production, send email with token
+        res.json({
+            message: 'Password reset instructions sent to email'
+        });
+    } catch (error) {
+        console.error('Forgot password error:', error);
+        res.status(500).json({ message: 'Server error' });
     }
-
-    const token = generateResetToken();
-    const expires = Date.now() + 3600000; // 1 hour
-
-    // Save reset token
-    db.prepare('UPDATE users SET reset_token = ?, reset_token_expires = ? WHERE id = ?')
-        .run(token, expires, user.id);
-
-    // In development, return token in response
-    // In production, send email
-    console.log(`Password reset token for ${email}: ${token}`);
-
-    res.json({
-        message: 'Password reset instructions sent to email',
-        // Only in development:
-        devToken: token
-    });
 };
 
 // Reset password with token
 export const verifyResetToken = async (req, res) => {
     const { token } = req.query;
 
-    const user = db.prepare('SELECT * FROM users WHERE reset_token = ?').get(token);
-    if (!user) {
-        return res.status(400).json({ message: 'Invalid token' });
-    }
+    try {
+        const result = await pool.query('SELECT * FROM users WHERE reset_token = $1', [token]);
+        const user = result.rows[0];
+        
+        if (!user) {
+            return res.status(400).json({ message: 'Invalid token' });
+        }
 
-    if (Date.now() > user.reset_token_expires) {
-        return res.status(400).json({ message: 'Token expired' });
-    }
+        if (Date.now() > user.reset_token_expires) {
+            return res.status(400).json({ message: 'Token expired' });
+        }
 
-    res.json({ valid: true });
+        res.json({ valid: true });
+    } catch (error) {
+        console.error('Verify reset token error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
 };
 
 export const resetPassword = async (req, res) => {
     const { token, newPassword } = req.body;
 
-    const user = db.prepare('SELECT * FROM users WHERE reset_token = ?').get(token);
-    if (!user) {
-        return res.status(400).json({ message: 'Invalid or expired token' });
+    try {
+        const result = await pool.query('SELECT * FROM users WHERE reset_token = $1', [token]);
+        const user = result.rows[0];
+        
+        if (!user) {
+            return res.status(400).json({ message: 'Invalid or expired token' });
+        }
+
+        if (Date.now() > user.reset_token_expires) {
+            return res.status(400).json({ message: 'Token expired' });
+        }
+
+        const hash = await bcrypt.hash(newPassword, 10);
+
+        // Update password and clear reset token
+        await pool.query(
+            'UPDATE users SET password = $1, reset_token = NULL, reset_token_expires = NULL WHERE id = $2',
+            [hash, user.id]
+        );
+
+        res.json({ message: 'Password reset successful' });
+    } catch (error) {
+        console.error('Reset password error:', error);
+        res.status(500).json({ message: 'Server error' });
     }
-
-    if (Date.now() > user.reset_token_expires) {
-        return res.status(400).json({ message: 'Token expired' });
-    }
-
-    const hash = await bcrypt.hash(newPassword, 10);
-
-    // Update password and clear reset token
-    db.prepare('UPDATE users SET password = ?, reset_token = NULL, reset_token_expires = NULL WHERE id = ?')
-        .run(hash, user.id);
-
-    res.json({ message: 'Password reset successful' });
 };
