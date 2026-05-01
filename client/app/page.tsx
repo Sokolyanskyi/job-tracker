@@ -280,6 +280,7 @@ export default function Home() {
                             outline: 'none',
                             transition: 'border-color 0.2s ease',
                             minHeight: isMobile ? 44 : 40,
+                            boxSizing: 'border-box',
                         }}
                     />
                     {formErrors.title && (
@@ -307,6 +308,7 @@ export default function Home() {
                             outline: 'none',
                             transition: 'border-color 0.2s ease',
                             minHeight: isMobile ? 44 : 40,
+                            boxSizing: 'border-box',
                         }}
                     />
                     {formErrors.company && (
@@ -329,6 +331,7 @@ export default function Home() {
                         marginTop: isMobile ? 8 : 0,
                         width: isMobile ? '100%' : 'auto',
                         minHeight: isMobile ? 44 : 40,
+                        boxSizing: 'border-box',
                     }}
                 >
                     {t.addButton}

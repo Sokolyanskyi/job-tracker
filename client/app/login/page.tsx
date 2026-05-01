@@ -98,29 +98,20 @@ export default function LoginPage() {
         gap: 4,
     };
 
-    const inputStyle = (hasError: boolean) => {
-        const isMobileValue = isMobile ? '14px 18px' : '10px 14px';
-        const paddingValues = isMobileValue.split(' ');
-        const verticalPadding = paddingValues[0];
-        const horizontalPadding = paddingValues[1] || paddingValues[0];
-
-        return {
-            width: isMobile ? '100%' : 300,
-            maxWidth: 300,
-            paddingTop: verticalPadding,
-            paddingBottom: verticalPadding,
-            paddingLeft: horizontalPadding,
-            paddingRight: showPassword ? '48px' : horizontalPadding,
-            borderRadius: isMobile ? 10 : 8,
-            border: `1px solid ${hasError ? '#ef4444' : '#374151'}`,
-            background: '#1f2937',
-            color: 'white',
-            fontSize: isMobile ? 16 : 14,
-            outline: 'none',
-            transition: 'border-color 0.2s ease',
-            minHeight: isMobile ? 48 : 40,
-        };
-    };
+    const inputStyle = (hasError: boolean) => ({
+        width: isMobile ? '100%' : 300,
+        maxWidth: 300,
+        padding: isMobile ? '14px 18px' : '10px 14px',
+        borderRadius: isMobile ? 10 : 8,
+        border: `1px solid ${hasError ? '#ef4444' : '#374151'}`,
+        background: '#1f2937',
+        color: 'white',
+        fontSize: isMobile ? 16 : 14,
+        outline: 'none',
+        transition: 'border-color 0.2s ease',
+        maxHeight: isMobile ? 48 : 40,
+        boxSizing: 'border-box',
+    });
 
     const errorStyle = {
         color: '#ef4444',
@@ -192,6 +183,7 @@ export default function LoginPage() {
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
+                            zIndex: 1,
                         }}
                         title={showPassword ? t.hidePassword : t.showPassword}
                     >

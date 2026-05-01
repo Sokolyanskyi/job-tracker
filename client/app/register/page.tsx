@@ -105,7 +105,8 @@ export default function RegisterPage() {
         fontSize: isMobile ? 16 : 14,
         outline: 'none',
         transition: 'border-color 0.2s ease',
-        minHeight: isMobile ? 48 : 40,
+        minHeight: isMobile ? 28 : 20,
+        boxSizing: 'border-box',
     });
 
     const errorStyle = {
@@ -178,6 +179,7 @@ export default function RegisterPage() {
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
+                            zIndex: 1,
                         }}
                         title={showPassword ? t.hidePassword : t.showPassword}
                     >
